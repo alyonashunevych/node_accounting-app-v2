@@ -8,7 +8,11 @@ const getAll = async (req, res) => {
 };
 
 const create = async (req, res) => {
-  const { userId } = req.body;
+  const { userId, spentAt, title, amount, category } = req.body;
+
+  if (!spentAt || !title || !amount || !category) {
+    return res.sendStatus(400);
+  }
 
   const user = await usersService.getById(userId);
 
