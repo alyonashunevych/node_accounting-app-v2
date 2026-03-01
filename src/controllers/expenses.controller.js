@@ -2,26 +2,13 @@ const expensesService = require('../services/expenses.service');
 const usersService = require('../services/users.service');
 
 const getAll = async (req, res) => {
-  const { userId, from, to, categories } = req.query;
-
-  if (from && to) {
-    res.json(await expensesService.getBetweenDates(from, to));
-
-    return;
-  }
-
-  const expenses = await expensesService.getAll({ userId, categories });
+  const expenses = await expensesService.getAll(req.query);
 
   res.json(expenses);
 };
 
 const create = async (req, res) => {
-  const { userId, spentAt, title, amount, category, note } = req.body;
-  const isValid = Object.values(req.body).every((value) => value !== undefined);
-
-  if (!isValid) {
-    return res.sendStatus(400);
-  }
+  const { userId } = req.body;
 
   const user = await usersService.getById(userId);
 
@@ -29,14 +16,7 @@ const create = async (req, res) => {
     return res.sendStatus(400);
   }
 
-  const expense = await expensesService.create({
-    userId,
-    spentAt,
-    title,
-    amount,
-    category,
-    note,
-  });
+  const expense = await expensesService.create(req.body);
 
   res.status(201).json(expense);
 };
@@ -64,12 +44,6 @@ const deleteOne = async (req, res) => {
 };
 
 const update = async (req, res) => {
-  const isValid = Object.values(req.body).every((value) => value !== undefined);
-
-  if (!isValid) {
-    return res.sendStatus(400);
-  }
-
   const expense = await expensesService.getById(req.params.id);
 
   if (!expense) {

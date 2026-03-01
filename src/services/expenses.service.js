@@ -10,7 +10,7 @@ function getId() {
   return expenses.length === 0 ? 0 : Math.max(...ids) + 1;
 }
 
-function getAll({ userId, categories }) {
+function getAll({ userId, categories, from, to }) {
   let expensesCopy = [...expenses];
 
   if (userId) {
@@ -20,35 +20,21 @@ function getAll({ userId, categories }) {
   }
 
   if (categories) {
-    expensesCopy = expensesCopy.filter((e) => e.category === categories);
+    expensesCopy = expensesCopy.filter((e) => categories.includes(e.category));
+  }
+
+  if (from && to) {
+    const fromDate = new Date(from);
+    const toDate = new Date(to);
+
+    expensesCopy = expensesCopy.filter((expense) => {
+      const expenceDate = new Date(expense.spentAt);
+
+      return expenceDate > fromDate && expenceDate < toDate;
+    });
   }
 
   return expensesCopy;
-}
-
-function getByParams({ userId, categories }) {
-  let expensesByParams = expenses.filter(
-    (expense) => String(expense.userId) === String(userId),
-  );
-
-  if (categories) {
-    expensesByParams = expensesByParams.filter(
-      (e) => e.category === categories,
-    );
-  }
-
-  return expensesByParams;
-}
-
-function getBetweenDates(from, to) {
-  const fromDate = new Date(from);
-  const toDate = new Date(to);
-
-  return expenses.filter((expense) => {
-    const expenceDate = new Date(expense.spentAt);
-
-    return expenceDate > fromDate && expenceDate < toDate;
-  });
 }
 
 function getById(id) {
@@ -97,8 +83,6 @@ module.exports = {
   createExpenses,
   getAll,
   getById,
-  getByParams,
-  getBetweenDates,
   create,
   deleteById,
   update,
